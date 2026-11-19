@@ -1,0 +1,10 @@
+{
+  "name": { "translate": "trait.example.sluggish", "fallback": "Sluggish" },
+  "description": { "translate": "trait.example.sluggish.desc", "fallback": "Moves 10% slower." },
+  "icon": "minecraft:cobweb",
+  "cost": -2,
+  "exclusive_with": ["example:athletic"],
+  "effects": [
+    { "type": "facets:attribute", "attribute": "minecraft:generic.movement_speed", "amount": -0.1, "operation": "add_multiplied_base" }
+  ]
+}

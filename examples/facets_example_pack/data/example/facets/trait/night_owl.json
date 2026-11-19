@@ -1,0 +1,9 @@
+{
+  "name": { "translate": "trait.example.night_owl", "fallback": "Night Owl" },
+  "description": { "translate": "trait.example.night_owl.desc", "fallback": "Can't be picked; only given with /facets add." },
+  "icon": "minecraft:ender_eye",
+  "selectable": false,
+  "effects": [
+    { "type": "facets:attribute", "attribute": "minecraft:generic.luck", "amount": 1 }
+  ]
+}

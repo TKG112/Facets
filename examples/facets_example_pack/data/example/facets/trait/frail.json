@@ -1,0 +1,10 @@
+{
+  "name": { "translate": "trait.example.frail", "fallback": "Frail" },
+  "description": { "translate": "trait.example.frail.desc", "fallback": "Two fewer hearts." },
+  "icon": "minecraft:bone",
+  "cost": -4,
+  "exclusive_with": ["example:thick_skinned"],
+  "effects": [
+    { "type": "facets:attribute", "attribute": "minecraft:generic.max_health", "amount": -4 }
+  ]
+}

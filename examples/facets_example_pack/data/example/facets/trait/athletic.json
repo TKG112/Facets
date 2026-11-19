@@ -1,0 +1,10 @@
+{
+  "name": { "translate": "trait.example.athletic", "fallback": "Athletic" },
+  "description": { "translate": "trait.example.athletic.desc", "fallback": "Moves 10% faster." },
+  "icon": "minecraft:leather_boots",
+  "cost": 3,
+  "exclusive_with": ["example:sluggish"],
+  "effects": [
+    { "type": "facets:attribute", "attribute": "minecraft:generic.movement_speed", "amount": 0.1, "operation": "add_multiplied_base" }
+  ]
+}

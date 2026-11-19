@@ -1,0 +1,10 @@
+{
+  "name": { "translate": "trait.example.thick_skinned", "fallback": "Thick Skinned" },
+  "description": { "translate": "trait.example.thick_skinned.desc", "fallback": "Two extra hearts." },
+  "icon": "minecraft:leather_chestplate",
+  "cost": 4,
+  "exclusive_with": ["example:frail"],
+  "effects": [
+    { "type": "facets:attribute", "attribute": "minecraft:generic.max_health", "amount": 4 }
+  ]
+}

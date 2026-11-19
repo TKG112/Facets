@@ -1,0 +1,10 @@
+{
+  "name": { "translate": "trait.example.weak", "fallback": "Weak" },
+  "description": { "translate": "trait.example.weak.desc", "fallback": "Deals less damage." },
+  "icon": "minecraft:wooden_sword",
+  "cost": -3,
+  "exclusive_with": ["example:strong"],
+  "effects": [
+    { "type": "facets:attribute", "attribute": "minecraft:generic.attack_damage", "amount": -0.5 }
+  ]
+}

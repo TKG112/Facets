@@ -1,0 +1,10 @@
+{
+  "name": { "translate": "trait.example.strong", "fallback": "Strong" },
+  "description": { "translate": "trait.example.strong.desc", "fallback": "Hits harder with every weapon." },
+  "icon": "minecraft:iron_sword",
+  "cost": 4,
+  "exclusive_with": ["example:weak"],
+  "effects": [
+    { "type": "facets:attribute", "attribute": "minecraft:generic.attack_damage", "amount": 1.0 }
+  ]
+}

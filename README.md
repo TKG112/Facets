@@ -1,25 +1,69 @@
+# Facets
 
-Installation information
-=======
+Data-driven character traits for NeoForge 1.21.1. Players pick their traits on a selection screen when they first join
+(and optionally after dying). Traits are defined in datapacks, so any modpack can make its own without code.
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+## Traits
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+Traits go in `data/<namespace>/facets/trait/<name>.json`:
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+```json
+{
+  "name": { "translate": "trait.mypack.strong", "fallback": "Strong" },
+  "description": "Hits harder with every weapon.",
+  "icon": "minecraft:iron_sword",
+  "cost": 4,
+  "selectable": true,
+  "exclusive_with": ["mypack:weak"],
+  "effects": [
+    { "type": "facets:attribute", "attribute": "minecraft:generic.attack_damage", "amount": 1.0, "operation": "add_value" }
+  ]
+}
+```
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
+| Field            | Default          | Description                                                                          |
+|------------------|------------------|--------------------------------------------------------------------------------------|
+| `name`           | required         | Text component (a plain string or `{"translate": ...}`)                              |
+| `description`    | empty            | Shown in the tooltip                                                                 |
+| `icon`           | `minecraft:paper`| Item shown next to the name                                                          |
+| `cost`           | `0`              | Points spent in `POINTS` mode. Negative values give points back. Traits with a negative cost go in the "Negative Traits" list on the screen, the rest in "Positive Traits". If no trait has a negative cost, a single list is shown |
+| `selectable`     | `true`           | `false` hides it from the screen; it can only be given with commands or by other mods |
+| `exclusive_with` | `[]`             | Traits that can't be held together with this one (checked both ways)                 |
+| `effects`        | `[]`             | What the trait does                                                                  |
 
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+### Effects
+
+`facets:attribute` adds an attribute modifier while the trait is held.
+
+| Field       | Default     | Description                                                     |
+|-------------|-------------|-----------------------------------------------------------------|
+| `attribute` | required    | Attribute id, e.g. `minecraft:generic.max_health`               |
+| `amount`    | required    | Modifier amount                                                 |
+| `operation` | `add_value` | `add_value`, `add_multiplied_base` or `add_multiplied_total`    |
+
+## Config
+
+`world/serverconfig/facets-server.toml` (ship defaults in `defaultconfigs/facets-server.toml`):
+
+| Option                      | Default  | Description                                                    |
+|-----------------------------|----------|----------------------------------------------------------------|
+| `selection.mode`            | `POINTS` | `POINTS`, `COUNT`, `FREE` or `NONE`                            |
+| `selection.startingPoints`  | `0`      | Point budget in `POINTS` mode                                  |
+| `selection.minTraits`       | `0`      | Minimum traits in `COUNT` mode                                 |
+| `selection.maxTraits`       | `3`      | Maximum traits in `COUNT` mode                                 |
+| `triggers.openOnFirstJoin`  | `true`   | Open the screen on a player's first join                       |
+| `triggers.onDeath`          | `KEEP`   | `KEEP`, `RESET` (pick again from scratch) or `REPICK` (pick again, previous traits preselected) |
+
+## Commands
+
+All require permission level 2.
+
+- `/facets list <player>`
+- `/facets add <player> <trait>` (ignores selection rules)
+- `/facets remove <player> <trait>`
+- `/facets reset <player>`: removes all traits and opens the screen
+- `/facets open <player>`: opens the screen with the current traits preselected
+
+## Example
+
+`examples/facets_example_pack` has a few sample traits. Copy it into a world's `datapacks` folder to try them.
