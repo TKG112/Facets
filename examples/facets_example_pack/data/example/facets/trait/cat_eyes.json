@@ -1,0 +1,15 @@
+{
+  "name": { "translate": "trait.example.cat_eyes", "fallback": "Cat's Eyes" },
+  "description": { "translate": "trait.example.cat_eyes.desc", "fallback": "Sees in the dark." },
+  "icon": "minecraft:ender_eye",
+  "cost": 2,
+  "effects": [
+    {
+      "type": "facets:conditional",
+      "condition": { "type": "facets:time", "period": "night" },
+      "effects": [
+        { "type": "facets:mob_effect", "effect": "minecraft:night_vision" }
+      ]
+    }
+  ]
+}

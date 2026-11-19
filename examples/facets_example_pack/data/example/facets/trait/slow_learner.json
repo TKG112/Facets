@@ -1,0 +1,9 @@
+{
+  "name": { "translate": "trait.example.slow_learner", "fallback": "Slow Learner" },
+  "icon": "minecraft:book",
+  "cost": -2,
+  "exclusive_with": ["example:fast_learner"],
+  "effects": [
+    { "type": "facets:experience", "multiplier": 0.8 }
+  ]
+}

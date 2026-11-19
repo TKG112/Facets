@@ -1,0 +1,9 @@
+{
+  "name": "Clumsy",
+  "icon": "minecraft:stick",
+  "category": "rpg:flaws",
+  "cost": -3,
+  "effects": [
+    { "type": "facets:attribute", "attribute": "minecraft:generic.attack_speed", "amount": -0.3 }
+  ]
+}

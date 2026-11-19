@@ -11,44 +11,72 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
+import net.tkg.facets.client.theme.FacetsTheme;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-/** Scrollable list of traits, one per row. Click selects a row, double-click moves it to the other side. */
-public class TraitListWidget extends AbstractWidget {
+/** Scrollable list with an icon and a name per row. Click selects a row, double-click activates it. */
+public class EntryListWidget<E extends EntryListWidget.Entry> extends AbstractWidget {
     public enum Side {
         AVAILABLE,
         CHOSEN
+    }
+
+    public interface Entry {
+        Component name();
+
+        ItemStack icon();
+    }
+
+    /** The screen a list lives on. */
+    public interface Host<E> {
+        boolean isSelected(E entry);
+
+        /** Disabled entries are drawn grey. */
+        boolean isEnabled(E entry, Side side);
+
+        /** Small label drawn on the right of the row, e.g. a trait's cost. */
+        @Nullable
+        Component costLabel(E entry);
+
+        void onEntryClicked(E entry, Side side, boolean doubleClick);
     }
 
     private static final int ROW_HEIGHT = 20;
     private static final int PADDING = 2;
     private static final long DOUBLE_CLICK_MS = 250;
 
-    private final TraitSelectionScreen screen;
+    private final Host<E> host;
     private final Side side;
-    private List<TraitEntry> entries = List.of();
+    private List<E> entries = List.of();
     private double scroll;
     @Nullable
-    private TraitEntry hovered;
+    private E hovered;
     @Nullable
-    private TraitEntry lastClicked;
+    private E lastClicked;
     private long lastClickTime;
 
-    public TraitListWidget(int x, int y, int width, int height, Component title, TraitSelectionScreen screen, Side side) {
+    public EntryListWidget(int x, int y, int width, int height, Component title, Host<E> host, Side side) {
         super(x, y, width, height, title);
-        this.screen = screen;
+        this.host = host;
         this.side = side;
     }
 
-    public void setEntries(List<TraitEntry> entries) {
-        this.entries = entries;
-        scroll = Mth.clamp(scroll, 0, maxScroll());
+    public void setEntries(List<E> entries) {
+        if (!entries.equals(this.entries)) {
+            this.entries = entries;
+            scroll = Mth.clamp(scroll, 0, maxScroll());
+        }
+    }
+
+    public void resetScroll() {
+        scroll = 0;
     }
 
     @Nullable
-    public TraitEntry hovered() {
+    public E hovered() {
         return hovered;
     }
 
@@ -70,12 +98,17 @@ public class TraitListWidget extends AbstractWidget {
         int x = getX();
         int y = getY();
         hovered = null;
+        FacetsTheme theme = FacetsTheme.current();
 
-        graphics.fill(x, y, x + width, y + height, 0xA0000000);
-        graphics.renderOutline(x, y, width, height, 0xFF555555);
+        if (theme.sprite(FacetsTheme.SPRITE_PANEL) != null) {
+            theme.fill(graphics, FacetsTheme.SPRITE_PANEL, FacetsTheme.PANEL_BACKGROUND, x, y, width, height);
+        } else {
+            graphics.fill(x, y, x + width, y + height, theme.color(FacetsTheme.PANEL_BACKGROUND));
+            graphics.renderOutline(x, y, width, height, theme.color(FacetsTheme.PANEL_BORDER));
+        }
 
         if (entries.isEmpty()) {
-            graphics.drawCenteredString(font, Component.translatable("facets.screen.empty"), x + width / 2, y + height / 2 - 4, 0x808080);
+            graphics.drawCenteredString(font, Component.translatable("facets.screen.empty"), x + width / 2, y + height / 2 - 4, theme.color(FacetsTheme.TEXT_EMPTY));
             return;
         }
 
@@ -90,15 +123,20 @@ public class TraitListWidget extends AbstractWidget {
             if (top + ROW_HEIGHT < y || top > y + height) {
                 continue;
             }
-            TraitEntry entry = entries.get(i);
-            boolean enabled = side == Side.CHOSEN || screen.canAdd(entry);
+            E entry = entries.get(i);
+            boolean enabled = host.isEnabled(entry, side);
             boolean rowHovered = mouseInside && mouseX >= rowLeft && mouseX < rowRight && mouseY >= top && mouseY < top + ROW_HEIGHT;
 
-            if (screen.isSelected(entry)) {
-                graphics.fill(rowLeft, top, rowRight, top + ROW_HEIGHT, 0x50FFFFFF);
-                graphics.renderOutline(rowLeft, top, rowRight - rowLeft, ROW_HEIGHT, 0xFFFFFFFF);
+            if (host.isSelected(entry)) {
+                if (theme.sprite(FacetsTheme.SPRITE_ROW_SELECTED) != null) {
+                    theme.fill(graphics, FacetsTheme.SPRITE_ROW_SELECTED, FacetsTheme.ROW_SELECTED, rowLeft, top, rowRight - rowLeft, ROW_HEIGHT);
+                } else {
+                    graphics.fill(rowLeft, top, rowRight, top + ROW_HEIGHT, theme.color(FacetsTheme.ROW_SELECTED));
+                    graphics.renderOutline(rowLeft, top, rowRight - rowLeft, ROW_HEIGHT, theme.color(FacetsTheme.ROW_SELECTED_BORDER));
+                }
             } else if (rowHovered) {
-                graphics.fill(rowLeft, top, rowRight, top + ROW_HEIGHT, enabled ? 0x30FFFFFF : 0x18FFFFFF);
+                theme.fill(graphics, FacetsTheme.SPRITE_ROW_HOVER, enabled ? FacetsTheme.ROW_HOVER : FacetsTheme.ROW_HOVER_DISABLED,
+                        rowLeft, top, rowRight - rowLeft, ROW_HEIGHT);
             }
             if (rowHovered) {
                 hovered = entry;
@@ -108,15 +146,15 @@ public class TraitListWidget extends AbstractWidget {
 
             int textLeft = rowLeft + 22;
             int textRight = rowRight - 3;
-            Component cost = screen.costLabel(entry);
+            Component cost = host.costLabel(entry);
             if (cost != null) {
                 int costWidth = font.width(cost);
-                graphics.drawString(font, cost, textRight - costWidth, top + 6, 0xFFFFFF);
+                graphics.drawString(font, cost, textRight - costWidth, top + 6, theme.color(FacetsTheme.TEXT));
                 textRight -= costWidth + 4;
             }
             FormattedCharSequence name = Language.getInstance()
-                    .getVisualOrder(font.substrByWidth(entry.trait().name(), Math.max(0, textRight - textLeft)));
-            graphics.drawString(font, name, textLeft, top + 6, enabled ? 0xFFFFFF : 0x707070);
+                    .getVisualOrder(font.substrByWidth(entry.name(), Math.max(0, textRight - textLeft)));
+            graphics.drawString(font, name, textLeft, top + 6, theme.color(enabled ? FacetsTheme.TEXT : FacetsTheme.TEXT_DISABLED));
         }
         graphics.disableScissor();
 
@@ -127,8 +165,8 @@ public class TraitListWidget extends AbstractWidget {
             int barHeight = Math.max(12, trackHeight * trackHeight / contentHeight);
             int barTop = trackTop + (int) (scroll * (trackHeight - barHeight) / maxScroll());
             int barLeft = x + width - 5;
-            graphics.fill(barLeft, trackTop, barLeft + 4, trackTop + trackHeight, 0xFF202020);
-            graphics.fill(barLeft, barTop, barLeft + 4, barTop + barHeight, 0xFF909090);
+            graphics.fill(barLeft, trackTop, barLeft + 4, trackTop + trackHeight, theme.color(FacetsTheme.SCROLLBAR_TRACK));
+            graphics.fill(barLeft, barTop, barLeft + 4, barTop + barHeight, theme.color(FacetsTheme.SCROLLBAR));
         }
     }
 
@@ -140,13 +178,13 @@ public class TraitListWidget extends AbstractWidget {
         double offset = mouseY - getY() - PADDING + scroll;
         int index = (int) Math.floor(offset / ROW_HEIGHT);
         if (offset >= 0 && index < entries.size()) {
-            TraitEntry entry = entries.get(index);
+            E entry = entries.get(index);
             long now = Util.getMillis();
             boolean doubleClick = entry == lastClicked && now - lastClickTime < DOUBLE_CLICK_MS;
             lastClicked = doubleClick ? null : entry;
             lastClickTime = now;
             playDownSound(Minecraft.getInstance().getSoundManager());
-            screen.onEntryClicked(entry, side, doubleClick);
+            host.onEntryClicked(entry, side, doubleClick);
         }
         return true;
     }

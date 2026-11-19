@@ -1,0 +1,10 @@
+{
+  "name": "Quick Feet",
+  "icon": "minecraft:feather",
+  "category": "rpg:talents",
+  "cost": 3,
+  "exclusive_with": ["rpg:slow"],
+  "effects": [
+    { "type": "facets:attribute", "attribute": "minecraft:generic.movement_speed", "amount": 0.1, "operation": "add_multiplied_base" }
+  ]
+}

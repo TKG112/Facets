@@ -1,0 +1,9 @@
+{
+  "name": { "translate": "trait.example.fireproof", "fallback": "Fireproof" },
+  "description": { "translate": "trait.example.fireproof.desc", "fallback": "Shrugs off burns." },
+  "icon": "minecraft:magma_cream",
+  "cost": 3,
+  "effects": [
+    { "type": "facets:damage", "direction": "taken", "damage_types": "#minecraft:is_fire", "multiplier": 0.5 }
+  ]
+}

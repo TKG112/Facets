@@ -18,6 +18,40 @@ group = mod_group_id
 
 repositories {
     mavenLocal()
+    maven {
+        name = 'Latvian'
+        url = 'https://maven.latvian.dev/releases'
+        content { includeGroupByRegex 'dev\\.latvian\\..*' }
+    }
+    maven {
+        // Needed by KubeJS at runtime only
+        name = 'JitPack'
+        url = 'https://jitpack.io'
+        content { includeGroup 'com.github.rtyley' }
+    }
+    maven {
+        name = 'CurseMaven'
+        url = 'https://cursemaven.com'
+        content { includeGroup 'curse.maven' }
+    }
+    maven {
+        name = 'BlameJared'
+        url = 'https://maven.blamejared.com'
+        content {
+            includeGroup 'mezz.jei'
+            includeGroupByRegex 'net\\.mezzdev\\..*'
+        }
+    }
+    maven {
+        name = 'TerraformersMC'
+        url = 'https://maven.terraformersmc.com/releases'
+        content { includeGroup 'dev.emi' }
+    }
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
 }
 
 base {
@@ -112,6 +146,32 @@ configurations {
 }
 
 dependencies {
+    // Optional integrations: compiled against, never required at runtime.
+    // Set run_with_<mod>=true in gradle.properties to load the mod in the dev runs.
+    compileOnly "dev.latvian.mods:kubejs-neoforge:${kubejs_version}"
+    compileOnly "curse.maven:project-mmo-353935:${pmmo_file_id}"
+    compileOnly "maven.modrinth:neo-origins:${neoorigins_version}"
+    if (project.findProperty('run_with_kubejs') == 'true') {
+        localRuntime "dev.latvian.mods:kubejs-neoforge:${kubejs_version}"
+    }
+    if (project.findProperty('run_with_pmmo') == 'true') {
+        localRuntime "curse.maven:project-mmo-353935:${pmmo_file_id}"
+    }
+    if (project.findProperty('run_with_neoorigins') == 'true') {
+        localRuntime "maven.modrinth:neo-origins:${neoorigins_version}"
+    }
+    compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
+    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
+    compileOnly "dev.emi:emi-neoforge:${emi_version}:api"
+    if (project.findProperty('run_with_jei') == 'true') {
+        localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+        // JEI needs this config library as a separate mod at runtime
+        localRuntime "net.mezzdev.config:mezz_config-${minecraft_version}-neoforge:${mezz_config_version}"
+    }
+    if (project.findProperty('run_with_emi') == 'true') {
+        localRuntime "dev.emi:emi-neoforge:${emi_version}"
+    }
+
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"

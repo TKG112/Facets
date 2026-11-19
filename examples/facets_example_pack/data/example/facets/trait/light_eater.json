@@ -1,0 +1,10 @@
+{
+  "name": { "translate": "trait.example.light_eater", "fallback": "Light Eater" },
+  "description": { "translate": "trait.example.light_eater.desc", "fallback": "Gets hungry slower." },
+  "icon": "minecraft:apple",
+  "cost": 2,
+  "exclusive_with": ["example:hearty_appetite"],
+  "effects": [
+    { "type": "facets:hunger", "exhaustion": 0.75 }
+  ]
+}

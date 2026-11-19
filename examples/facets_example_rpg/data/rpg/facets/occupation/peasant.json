@@ -1,0 +1,7 @@
+{
+  "name": "Peasant",
+  "description": "No training, but plenty of room to grow.",
+  "icon": "minecraft:wheat",
+  "points": 6,
+  "order": 2
+}

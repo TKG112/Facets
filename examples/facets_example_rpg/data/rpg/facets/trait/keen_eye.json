@@ -1,0 +1,9 @@
+{
+  "name": "Keen Eye",
+  "description": "Spots what others miss.",
+  "icon": "minecraft:spyglass",
+  "selectable": false,
+  "effects": [
+    { "type": "facets:attribute", "attribute": "minecraft:generic.luck", "amount": 1 }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": { "translate": "trait.example.fast_learner", "fallback": "Fast Learner" },
+  "icon": "minecraft:experience_bottle",
+  "cost": 3,
+  "exclusive_with": ["example:slow_learner"],
+  "effects": [
+    { "type": "facets:experience", "multiplier": 1.25 }
+  ]
+}

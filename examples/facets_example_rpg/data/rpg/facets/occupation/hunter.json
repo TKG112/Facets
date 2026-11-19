@@ -1,0 +1,8 @@
+{
+  "name": "Hunter",
+  "description": "Lives off the land. Starts with Keen Eye.",
+  "icon": "minecraft:bow",
+  "points": 2,
+  "order": 1,
+  "traits": ["rpg:keen_eye"]
+}

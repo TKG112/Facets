@@ -18,6 +18,8 @@ public final class FacetsConfig {
     public static final ModConfigSpec.BooleanValue OPEN_ON_FIRST_JOIN;
     public static final ModConfigSpec.EnumValue<DeathBehavior> ON_DEATH;
 
+    public static final ModConfigSpec.BooleanValue NOTIFY_CHANGES;
+
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 
@@ -50,6 +52,13 @@ public final class FacetsConfig {
                         " RESET  - traits are removed and the player picks again from scratch",
                         " REPICK - the screen opens with the previous traits already selected")
                 .defineEnum("onDeath", DeathBehavior.KEEP);
+        builder.pop();
+
+        builder.push("notifications");
+        NOTIFY_CHANGES = builder
+                .comment("Show players a toast when they gain or lose a trait during play",
+                        " (gain_when / lose_when, commands, other mods). Not shown for picks on the selection screen.")
+                .define("toasts", true);
         builder.pop();
 
         SPEC = builder.build();

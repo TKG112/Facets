@@ -4,6 +4,7 @@
   "icon": "minecraft:cobweb",
   "cost": -2,
   "exclusive_with": ["example:athletic"],
+  "lose_when": { "type": "facets:stat", "stat_type": "minecraft:custom", "stat": "minecraft:walk_one_cm", "at_least": 5000000 },
   "effects": [
     { "type": "facets:attribute", "attribute": "minecraft:generic.movement_speed", "amount": -0.1, "operation": "add_multiplied_base" }
   ]

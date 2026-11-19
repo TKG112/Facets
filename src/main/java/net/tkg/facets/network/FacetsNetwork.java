@@ -20,11 +20,17 @@ public final class FacetsNetwork {
                 (payload, context) -> FacetsClient.openSelection(payload));
         registrar.playToClient(SelectionResultPayload.TYPE, SelectionResultPayload.STREAM_CODEC,
                 (payload, context) -> FacetsClient.handleResult(payload));
+        registrar.playToClient(TraitNotifyPayload.TYPE, TraitNotifyPayload.STREAM_CODEC,
+                (payload, context) -> FacetsClient.notifyTrait(payload));
+        registrar.playToClient(SyncDataPayload.TYPE, SyncDataPayload.STREAM_CODEC,
+                (payload, context) -> FacetsClient.syncData(payload));
+        registrar.playToClient(SyncTraitsPayload.TYPE, SyncTraitsPayload.STREAM_CODEC,
+                (payload, context) -> FacetsClient.syncTraits(payload));
 
         registrar.playToServer(SubmitSelectionPayload.TYPE, SubmitSelectionPayload.STREAM_CODEC,
                 (payload, context) -> {
                     if (context.player() instanceof ServerPlayer player) {
-                        TraitManager.submit(player, payload.traits());
+                        TraitManager.submit(player, payload.occupation().orElse(null), payload.traits());
                     }
                 });
     }

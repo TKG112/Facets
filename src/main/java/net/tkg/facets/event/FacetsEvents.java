@@ -3,16 +3,23 @@ package net.tkg.facets.event;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.tkg.facets.Facets;
 import net.tkg.facets.command.FacetsCommand;
+import net.tkg.facets.data.TraitDataLoader;
 import net.tkg.facets.trait.TraitManager;
 
 @EventBusSubscriber(modid = Facets.MODID)
 public final class FacetsEvents {
     private FacetsEvents() {
+    }
+
+    @SubscribeEvent
+    public static void onAddReloadListeners(AddReloadListenerEvent event) {
+        event.addListener(new TraitDataLoader());
     }
 
     @SubscribeEvent
@@ -29,11 +36,12 @@ public final class FacetsEvents {
         }
     }
 
+    /** Fires for a joining player (before the login event) and for everyone after /reload. */
     @SubscribeEvent
     public static void onDatapackSync(OnDatapackSyncEvent event) {
-        // A null player means /reload; joining players are handled on login
+        event.getRelevantPlayers().forEach(TraitManager::syncData);
         if (event.getPlayer() == null) {
-            event.getRelevantPlayers().forEach(TraitManager::refresh);
+            event.getRelevantPlayers().forEach(TraitManager::onReload);
         }
     }
 

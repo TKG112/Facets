@@ -1,0 +1,11 @@
+{
+  "name": "Heavy Hitter",
+  "description": "Builds on Swordsman.",
+  "icon": "minecraft:mace",
+  "category": "rpg:talents",
+  "cost": 5,
+  "requires": ["rpg:swordsman"],
+  "effects": [
+    { "type": "facets:attribute", "attribute": "minecraft:generic.attack_knockback", "amount": 1 }
+  ]
+}

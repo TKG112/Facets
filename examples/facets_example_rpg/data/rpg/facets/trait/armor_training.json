@@ -1,0 +1,9 @@
+{
+  "name": "Armor Training",
+  "description": "Knows how to wear armor properly.",
+  "icon": "minecraft:iron_chestplate",
+  "selectable": false,
+  "effects": [
+    { "type": "facets:attribute", "attribute": "minecraft:generic.armor", "amount": 2 }
+  ]
+}

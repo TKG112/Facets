@@ -1,0 +1,9 @@
+{
+  "name": "Slow",
+  "icon": "minecraft:cobweb",
+  "category": "rpg:flaws",
+  "cost": -2,
+  "effects": [
+    { "type": "facets:attribute", "attribute": "minecraft:generic.movement_speed", "amount": -0.1, "operation": "add_multiplied_base" }
+  ]
+}

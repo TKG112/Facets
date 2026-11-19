@@ -1,0 +1,23 @@
+{
+  "colors": {
+    "panel_background": "#A0000000",
+    "panel_border": "#FF555555",
+    "row_hover": "#30FFFFFF",
+    "row_hover_disabled": "#18FFFFFF",
+    "row_selected": "#50FFFFFF",
+    "row_selected_border": "#FFFFFFFF",
+    "text": "#FFFFFFFF",
+    "text_disabled": "#FF707070",
+    "text_empty": "#FF808080",
+    "label": "#FFA0A0A0",
+    "title": "#FFFFFFFF",
+    "error": "#FFFF5555",
+    "cost_positive": "#FF55FF55",
+    "cost_negative": "#FFFF5555",
+    "points_left": "#FF55FF55",
+    "points_over": "#FFFF5555",
+    "scrollbar_track": "#FF202020",
+    "scrollbar": "#FF909090"
+  },
+  "sprites": {}
+}

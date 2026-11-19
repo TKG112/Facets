@@ -1,0 +1,16 @@
+{
+  "colors": {
+    "panel_background": "#C01A1410",
+    "panel_border": "#FF7A5230",
+    "row_hover": "#40C08040",
+    "row_selected": "#60C08040",
+    "row_selected_border": "#FFE0A050",
+    "text": "#FFEADBC8",
+    "text_disabled": "#FF6E6152",
+    "label": "#FFC8A070",
+    "title": "#FFE0A050",
+    "cost_positive": "#FF9ACD5A",
+    "cost_negative": "#FFD9603B",
+    "scrollbar": "#FFC08040"
+  }
+}

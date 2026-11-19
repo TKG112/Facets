@@ -1,0 +1,9 @@
+{
+  "name": "Knight",
+  "description": "Trained in arms and armor. Starts with Armor Training, but cowards need not apply.",
+  "icon": "minecraft:iron_chestplate",
+  "points": -2,
+  "order": 0,
+  "traits": ["rpg:armor_training"],
+  "blocked": ["rpg:coward"]
+}

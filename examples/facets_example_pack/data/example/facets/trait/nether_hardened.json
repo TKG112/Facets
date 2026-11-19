@@ -1,0 +1,10 @@
+{
+  "name": { "translate": "trait.example.nether_hardened", "fallback": "Nether Hardened" },
+  "description": { "translate": "trait.example.nether_hardened.desc", "fallback": "Has felt the heat of the Nether." },
+  "icon": "minecraft:netherrack",
+  "selectable": false,
+  "gain_when": { "type": "facets:advancement", "advancement": "minecraft:story/enter_the_nether" },
+  "effects": [
+    { "type": "facets:damage", "direction": "taken", "damage_types": "#minecraft:is_fire", "multiplier": 0.8 }
+  ]
+}

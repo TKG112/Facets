@@ -1,0 +1,10 @@
+{
+  "name": "Tough",
+  "icon": "minecraft:shield",
+  "category": "rpg:talents",
+  "cost": 4,
+  "exclusive_with": ["rpg:coward"],
+  "effects": [
+    { "type": "facets:attribute", "attribute": "minecraft:generic.max_health", "amount": 4 }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "name": { "translate": "trait.example.hearty_appetite", "fallback": "Hearty Appetite" },
+  "description": { "translate": "trait.example.hearty_appetite.desc", "fallback": "Always hungry, and food doesn't go as far." },
+  "icon": "minecraft:cooked_beef",
+  "cost": -2,
+  "exclusive_with": ["example:light_eater"],
+  "effects": [
+    { "type": "facets:hunger", "exhaustion": 1.25, "food": 0.8 }
+  ]
+}

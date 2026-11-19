@@ -1,0 +1,1 @@
+net.tkg.facets.compat.kubejs.FacetsKubeJSPlugin

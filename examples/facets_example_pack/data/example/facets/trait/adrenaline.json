@@ -1,0 +1,16 @@
+{
+  "name": { "translate": "trait.example.adrenaline", "fallback": "Adrenaline Junkie" },
+  "description": { "translate": "trait.example.adrenaline.desc", "fallback": "Fights harder when close to death." },
+  "icon": "minecraft:blaze_powder",
+  "cost": 3,
+  "effects": [
+    {
+      "type": "facets:conditional",
+      "condition": { "type": "facets:health", "below": 0.3 },
+      "effects": [
+        { "type": "facets:damage", "direction": "dealt", "multiplier": 1.3 },
+        { "type": "facets:attribute", "attribute": "minecraft:generic.movement_speed", "amount": 0.15, "operation": "add_multiplied_base" }
+      ]
+    }
+  ]
+}

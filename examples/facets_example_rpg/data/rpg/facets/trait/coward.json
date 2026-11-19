@@ -1,0 +1,9 @@
+{
+  "name": "Coward",
+  "icon": "minecraft:white_banner",
+  "category": "rpg:flaws",
+  "cost": -4,
+  "effects": [
+    { "type": "facets:attribute", "attribute": "minecraft:generic.max_health", "amount": -4 }
+  ]
+}

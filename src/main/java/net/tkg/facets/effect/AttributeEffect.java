@@ -9,6 +9,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.network.chat.Component;
+import net.tkg.facets.Facets;
+
+import java.util.function.Consumer;
 
 /**
  * Adds an attribute modifier while the trait is held.
@@ -26,9 +31,17 @@ public record AttributeEffect(Holder<Attribute> attribute, double amount, Attrib
                     .forGetter(AttributeEffect::operation)
     ).apply(instance, AttributeEffect::new));
 
+    private static final ResourceLocation TOOLTIP_ID = Facets.id("tooltip");
+
     @Override
     public MapCodec<? extends TraitEffect> codec() {
         return CODEC;
+    }
+
+    @Override
+    public void addTooltip(Consumer<Component> lines) {
+        // Same formatting as item attribute tooltips: "+1 Attack Damage", "-10% Speed"
+        lines.accept(attribute.value().toComponent(new AttributeModifier(TOOLTIP_ID, amount, operation), TooltipFlag.NORMAL));
     }
 
     @Override
