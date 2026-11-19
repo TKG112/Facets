@@ -1,0 +1,72 @@
+TKG112 Mod License, version 1.0
+
+Copyright (c) TKG112. All rights reserved.
+
+This license applies to the mod it is distributed with ("the Mod"): its source code, compiled files (such as the mod
+jar), assets (textures, models, sounds, language files and other resources) and documentation. Files in the Mod's
+repository that come with their own license, such as build templates or bundled libraries, stay under that license.
+
+Everything not explicitly allowed below is reserved. If you want to do something this license doesn't allow, ask for
+written permission first.
+
+
+1. What you can do
+
+  a) Play with the Mod, on your own or on a server, including servers that earn money, as long as you follow the
+     Minecraft EULA.
+
+  b) Include the Mod in modpacks, public or private, free or monetized, when the pack is distributed through
+     CurseForge or Modrinth (or another platform that downloads the Mod from its official pages), following that
+     platform's rules.
+
+  c) Make content for the Mod: datapacks, resource packs, configs, scripts and similar files, and share or sell them
+     however you like. These are your own work.
+
+  d) Make addon or compatibility mods that use the Mod's public API, if it has one, as a dependency, without copying
+     the Mod's code into them.
+
+  e) Copy, change and redistribute any files the Mod's documentation marks as examples or templates (such as example
+     datapacks), for any purpose, without credit.
+
+  f) Read the source code to learn from it, and to write compatibility or addon code against it.
+
+  g) Show the Mod in videos, streams, screenshots, reviews and articles, monetized or not.
+
+
+2. What you can't do without written permission
+
+  a) Redistribute the Mod's files, original or modified, anywhere other than the Mod's official pages (such as its
+     CurseForge, Modrinth or source repository pages). Link to those pages instead of re-uploading.
+
+  b) Make or distribute forks, ports (to another mod loader, Minecraft version or platform) or rewrites of the Mod, or
+     other works based on its code or assets.
+
+  c) Copy the Mod's code or assets, in full or in substantial parts, into another project.
+
+  d) Use the Mod's code, assets or documentation as training, fine-tuning or evaluation data for artificial
+     intelligence or machine learning models, or include them in datasets made for that purpose.
+
+  e) Use AI tools to produce ports, rewrites, translations to another language or loader, or other derivative works of
+     the Mod, or distribute such works. This applies whether or not any of the Mod's code is copied directly.
+
+  f) Claim the Mod, or any part of it, as your own work.
+
+
+3. Contributions
+
+  Pull requests and other contributions are welcome. By submitting one, you agree that it can be included in the Mod
+  and distributed under this license.
+
+
+4. No warranty
+
+  THE MOD IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+  WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHOR BE
+  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE MOD OR THE USE OR OTHER DEALINGS IN THE MOD.
+
+
+5. Versions
+
+  This license may be updated, and each update gets a new version number. Each release of the Mod stays under the
+  license version it was released with. All versions are published at https://github.com/TKG112/mod-license

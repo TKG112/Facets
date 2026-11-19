@@ -247,3 +247,11 @@ idea {
         downloadJavadoc = true
     }
 }
+
+// Ship the license inside the jar, since the jar is what gets passed around in modpacks
+def licenseName = "LICENSE_${project.mod_id}"
+tasks.named('jar', Jar).configure {
+    from('LICENSE') {
+        rename { licenseName }
+    }
+}

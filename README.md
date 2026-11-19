@@ -380,3 +380,10 @@ typo in an id.
 
 If the selection screen doesn't open, `/facets open <player>` says why: either `selection.mode` is `NONE`, or no
 traits or occupations are loaded.
+
+## License
+
+Facets is under the TKG112 Mod License 1.0, see [LICENSE](LICENSE). In short: you can use it in any modpack on CurseForge or
+Modrinth, make datapacks, resource packs, scripts and addon mods for it, and copy the example packs freely.
+Re-uploads, forks, ports, rewrites and using the code or assets for AI training or AI-generated ports aren't allowed
+without permission. The build scripts from the NeoForged MDK are under [TEMPLATE_LICENSE.txt](TEMPLATE_LICENSE.txt).
