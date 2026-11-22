@@ -1,0 +1,11 @@
+{
+  "name": "Green Recruit",
+  "description": "Hasn't seen a real fight yet. Goes away after 25 kills as this character.",
+  "icon": "minecraft:wooden_sword",
+  "selectable": false,
+  "removable_from_occupation": true,
+  "lose_when": { "type": "facets:stat", "stat_type": "minecraft:custom", "stat": "minecraft:mob_kills", "at_least": 25, "since": "character" },
+  "effects": [
+    { "type": "facets:damage", "direction": "dealt", "multiplier": 0.9 }
+  ]
+}

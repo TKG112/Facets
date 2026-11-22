@@ -13,7 +13,9 @@ import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerXpEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.tkg.facets.Facets;
+import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.tkg.facets.effect.DamageEffect;
+import net.tkg.facets.effect.EffectImmunity;
 import net.tkg.facets.effect.ExperienceEffect;
 import net.tkg.facets.effect.HungerEffect;
 import net.tkg.facets.trait.TraitManager;
@@ -129,6 +131,19 @@ public final class EffectEvents {
             }
         }
         return multiplier;
+    }
+
+    @SubscribeEvent
+    public static void onEffectApplicable(MobEffectEvent.Applicable event) {
+        if (!(event.getEntity() instanceof ServerPlayer player) || event.getEffectInstance() == null) {
+            return;
+        }
+        for (EffectImmunity immunity : TraitManager.activeEffects(player, EffectImmunity.class)) {
+            if (immunity.blocks(event.getEffectInstance().getEffect())) {
+                event.setResult(MobEffectEvent.Applicable.Result.DO_NOT_APPLY);
+                return;
+            }
+        }
     }
 
     @SubscribeEvent

@@ -210,6 +210,12 @@ public final class Conditions {
         public Component describe() {
             return join(conditions, "facets.condition.and");
         }
+
+        @Override
+        public void visit(java.util.function.Consumer<EffectCondition> visitor) {
+            visitor.accept(this);
+            conditions.forEach(c -> c.visit(visitor));
+        }
     }
 
     /** { "type": "facets:any_of", "conditions": [...] } */
@@ -232,6 +238,12 @@ public final class Conditions {
         public Component describe() {
             return join(conditions, "facets.condition.or");
         }
+
+        @Override
+        public void visit(java.util.function.Consumer<EffectCondition> visitor) {
+            visitor.accept(this);
+            conditions.forEach(c -> c.visit(visitor));
+        }
     }
 
     /** { "type": "facets:not", "condition": {...} } */
@@ -253,6 +265,12 @@ public final class Conditions {
         @Override
         public Component describe() {
             return Component.translatable("facets.condition.not", condition.describe());
+        }
+
+        @Override
+        public void visit(java.util.function.Consumer<EffectCondition> visitor) {
+            visitor.accept(this);
+            condition.visit(visitor);
         }
     }
 

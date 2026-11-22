@@ -61,6 +61,12 @@ public record ConditionalEffect(EffectCondition condition, List<TraitEffect> eff
     }
 
     @Override
+    public void visitConditions(Consumer<EffectCondition> visitor) {
+        condition.visit(visitor);
+        effects.forEach(effect -> effect.visitConditions(visitor));
+    }
+
+    @Override
     public void addTooltip(Consumer<Component> lines) {
         lines.accept(Component.translatable("facets.effect.conditional", condition.describe()).withStyle(ChatFormatting.GRAY));
         effects.forEach(effect -> effect.addTooltip(line -> lines.accept(Component.literal("  ").append(line))));

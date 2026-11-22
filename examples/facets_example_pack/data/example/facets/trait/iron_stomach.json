@@ -1,0 +1,9 @@
+{
+  "name": { "translate": "trait.example.iron_stomach", "fallback": "Iron Stomach" },
+  "description": { "translate": "trait.example.iron_stomach.desc", "fallback": "Can eat almost anything." },
+  "icon": "minecraft:rotten_flesh",
+  "cost": 3,
+  "effects": [
+    { "type": "facets:effect_immunity", "effects": ["minecraft:poison", "minecraft:hunger"] }
+  ]
+}

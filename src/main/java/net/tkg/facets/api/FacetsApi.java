@@ -49,17 +49,13 @@ public final class FacetsApi {
     }
 
     /**
-     * Takes a trait away from the player. Free traits of the player's occupation can't be removed.
+     * Takes a trait away from the player. Free traits of the player's occupation can only be removed
+     * when the trait is marked removable_from_occupation.
      *
-     * @return false if the player doesn't hold the trait themselves
+     * @return false if the player doesn't hold the trait, or it can't be removed
      */
     public static boolean removeTrait(ServerPlayer player, ResourceLocation trait) {
-        List<ResourceLocation> traits = new ArrayList<>(TraitManager.get(player).traits());
-        if (!traits.remove(trait)) {
-            return false;
-        }
-        TraitManager.setTraits(player, traits, ChangeCause.API);
-        return true;
+        return TraitManager.removeTrait(player, trait, ChangeCause.API);
     }
 
     public static Optional<ResourceLocation> getOccupation(ServerPlayer player) {

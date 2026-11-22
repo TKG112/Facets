@@ -6,6 +6,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.tkg.facets.registry.FacetsRegistries;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -22,4 +23,9 @@ public interface EffectCondition {
 
     /** Short description for tooltips, read as "When &lt;description&gt;:". */
     Component describe();
+
+    /** Passes this condition and every condition nested inside it to the visitor. */
+    default void visit(Consumer<EffectCondition> visitor) {
+        visitor.accept(this);
+    }
 }

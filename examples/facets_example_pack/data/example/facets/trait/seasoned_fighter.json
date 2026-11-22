@@ -3,7 +3,8 @@
   "description": { "translate": "trait.example.seasoned_fighter.desc", "fallback": "Earned by fighting. Cures weakness." },
   "icon": "minecraft:diamond_sword",
   "selectable": false,
-  "gain_when": { "type": "facets:stat", "stat_type": "minecraft:custom", "stat": "minecraft:mob_kills", "at_least": 100 },
+  "gain_when": { "type": "facets:stat", "stat_type": "minecraft:custom", "stat": "minecraft:mob_kills", "at_least": 100, "since": "character" },
+  "on_gain": ["give @s minecraft:iron_ingot 3"],
   "replaces": ["example:weak"],
   "effects": [
     { "type": "facets:attribute", "attribute": "minecraft:generic.attack_damage", "amount": 0.5 }

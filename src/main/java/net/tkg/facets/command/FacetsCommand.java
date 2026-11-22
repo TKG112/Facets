@@ -181,17 +181,15 @@ public final class FacetsCommand {
 
     private static int remove(CommandSourceStack source, ServerPlayer player, ResourceLocation id) throws CommandSyntaxException {
         TraitData data = TraitManager.data();
-        List<ResourceLocation> traits = new ArrayList<>(TraitManager.get(player).traits());
-        if (!traits.remove(id)) {
+        if (!TraitManager.removeTrait(player, id, ChangeCause.COMMAND)) {
             throw MISSING.create(name(data, id));
         }
-        TraitManager.setTraits(player, traits, ChangeCause.COMMAND);
         source.sendSuccess(() -> Component.translatable("facets.command.removed", name(data, id), player.getDisplayName()), true);
         return 1;
     }
 
     private static int reset(CommandSourceStack source, ServerPlayer player) {
-        TraitManager.setState(player, List.of(), Optional.empty(), ChangeCause.RESET);
+        TraitManager.resetCharacter(player);
         TraitManager.OpenResult result = TraitManager.openSelection(player);
         source.sendSuccess(() -> Component.translatable("facets.command.reset", player.getDisplayName()), true);
         reportNotOpened(source, result);

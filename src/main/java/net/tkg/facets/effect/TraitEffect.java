@@ -43,6 +43,10 @@ public interface TraitEffect {
         consumer.accept(this);
     }
 
+    /** Passes every condition inside this effect to the visitor. */
+    default void visitConditions(Consumer<net.tkg.facets.condition.EffectCondition> visitor) {
+    }
+
     /** Adds lines describing this effect to trait tooltips. Called on the client. */
     default void addTooltip(Consumer<Component> lines) {
     }

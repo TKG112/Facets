@@ -23,9 +23,10 @@ import java.util.List;
  * @param order       occupations are listed from lowest to highest order, then by name
  * @param traits      traits given for free with the occupation; they can't be removed on the screen
  * @param blocked     traits or trait tags that can't be picked with this occupation
+ * @param onSelect    commands run once when a player takes this occupation, as the server with @s as the player
  */
 public record Occupation(Component name, Component description, Item icon, int points, int order,
-                         List<ResourceLocation> traits, List<TraitRef> blocked) {
+                         List<ResourceLocation> traits, List<TraitRef> blocked, List<String> onSelect) {
 
     public static final Codec<Occupation> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ComponentSerialization.CODEC.fieldOf("name").forGetter(Occupation::name),
@@ -34,6 +35,7 @@ public record Occupation(Component name, Component description, Item icon, int p
             Codec.INT.optionalFieldOf("points", 0).forGetter(Occupation::points),
             Codec.INT.optionalFieldOf("order", 0).forGetter(Occupation::order),
             ResourceLocation.CODEC.listOf().optionalFieldOf("traits", List.of()).forGetter(Occupation::traits),
-            TraitRef.CODEC.listOf().optionalFieldOf("blocked", List.of()).forGetter(Occupation::blocked)
+            TraitRef.CODEC.listOf().optionalFieldOf("blocked", List.of()).forGetter(Occupation::blocked),
+            Codec.STRING.listOf().optionalFieldOf("on_select", List.of()).forGetter(Occupation::onSelect)
     ).apply(instance, Occupation::new));
 }

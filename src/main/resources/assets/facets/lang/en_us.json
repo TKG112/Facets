@@ -45,6 +45,8 @@
   "facets.effect.hunger.food": "%s food restored",
   "facets.effect.experience": "%s experience gained",
   "facets.effect.conditional": "When %s:",
+  "facets.effect.effect_immunity": "Immune to %s",
+  "facets.condition.stat.character": "%s (this character)",
   "facets.effect.pmmo_xp": "%s %s XP",
   "facets.effect.pmmo_xp.all": "%s skill XP",
   "facets.effect.origins_power": "Grants %s",

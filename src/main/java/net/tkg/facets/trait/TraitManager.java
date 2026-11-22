@@ -29,9 +29,13 @@ import net.tkg.facets.player.FacetsAttachments;
 import net.tkg.facets.player.PlayerFacets;
 
 import java.util.ArrayList;
+import net.tkg.facets.condition.ProgressConditions;
+
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -61,12 +65,84 @@ public final class TraitManager {
         player.setData(FacetsAttachments.PLAYER_FACETS, data);
     }
 
-    /** Every trait the player holds: their own traits plus the free traits of their occupation. */
+    /**
+     * Every trait the player holds: their own traits plus the free traits of their occupation, minus
+     * the occupation traits they lost during play.
+     */
     public static List<ResourceLocation> effectiveTraits(ServerPlayer player) {
         PlayerFacets playerData = get(player);
         Set<ResourceLocation> result = new LinkedHashSet<>(playerData.traits());
-        playerData.occupation().map(data()::occupation).ifPresent(occupation -> result.addAll(occupation.traits()));
+        playerData.occupation().map(data()::occupation).ifPresent(occupation -> occupation.traits().stream()
+                .filter(id -> !playerData.lostOccupationTraits().contains(id))
+                .forEach(result::add));
         return List.copyOf(result);
+    }
+
+    /** Free traits of the player's occupation they still hold. */
+    private static List<ResourceLocation> heldOccupationTraits(PlayerFacets playerData) {
+        Occupation occupation = data().occupation(playerData.occupation().orElse(null));
+        if (occupation == null) {
+            return List.of();
+        }
+        return occupation.traits().stream().filter(id -> !playerData.lostOccupationTraits().contains(id)).toList();
+    }
+
+    /**
+     * Takes a trait away, ignoring selection rules: the player's own trait, or a free occupation trait
+     * marked removable_from_occupation.
+     *
+     * @return false if the player doesn't hold the trait, or it's an occupation trait that can't be removed
+     */
+    public static boolean removeTrait(ServerPlayer player, ResourceLocation id, ChangeCause cause) {
+        PlayerFacets playerData = get(player);
+        List<ResourceLocation> own = new ArrayList<>(playerData.traits());
+        if (own.remove(id)) {
+            setTraits(player, own, cause);
+            return true;
+        }
+        Trait trait = data().trait(id);
+        if (trait != null && trait.removableFromOccupation() && heldOccupationTraits(playerData).contains(id)) {
+            List<ResourceLocation> lost = new ArrayList<>(playerData.lostOccupationTraits());
+            lost.add(id);
+            setState(player, own, playerData.occupation(), lost, cause);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * The value a statistic had when the player's current character started. Statistics a pack
+     * started using later get their baseline the first time they're checked.
+     */
+    public static int statBaseline(ServerPlayer player, String key, int currentValue) {
+        PlayerFacets playerData = get(player);
+        Integer baseline = playerData.statBaseline().get(key);
+        if (baseline != null) {
+            return baseline;
+        }
+        Map<String, Integer> updated = new HashMap<>(playerData.statBaseline());
+        updated.put(key, currentValue);
+        set(player, playerData.withStatBaseline(updated));
+        return currentValue;
+    }
+
+    /** Records the current value of every statistic a "since": "character" stat condition uses. */
+    private static void snapshotStats(ServerPlayer player) {
+        Map<String, Integer> baseline = new HashMap<>();
+        for (TraitHolder holder : data().holders()) {
+            holder.value().visitConditions(condition -> {
+                if (condition instanceof ProgressConditions.StatValue stat && stat.since() == ProgressConditions.Since.CHARACTER) {
+                    baseline.put(stat.baselineKey(), stat.currentValue(player));
+                }
+            });
+        }
+        set(player, get(player).withStatBaseline(baseline));
+    }
+
+    /** Starts a new character: removes all traits and the occupation, and restarts "since": "character" stats. */
+    public static void resetCharacter(ServerPlayer player) {
+        setState(player, List.of(), Optional.empty(), List.of(), ChangeCause.RESET);
+        snapshotStats(player);
     }
 
     /** Traits the player holds that can't be picked on the screen (given by commands or other mods). */
@@ -89,9 +165,16 @@ public final class TraitManager {
      */
     public static void setState(ServerPlayer player, List<ResourceLocation> traits, Optional<ResourceLocation> occupation,
                                 ChangeCause cause) {
+        // A new occupation comes with all its traits, including ones lost under the previous one
+        List<ResourceLocation> lost = occupation.equals(get(player).occupation()) ? get(player).lostOccupationTraits() : List.of();
+        setState(player, traits, occupation, lost, cause);
+    }
+
+    private static void setState(ServerPlayer player, List<ResourceLocation> traits, Optional<ResourceLocation> occupation,
+                                 List<ResourceLocation> lostOccupationTraits, ChangeCause cause) {
         List<ResourceLocation> before = effectiveTraits(player);
         Optional<ResourceLocation> previousOccupation = get(player).occupation();
-        set(player, get(player).withTraits(traits).withOccupation(occupation));
+        set(player, get(player).withTraits(traits).withOccupation(occupation).withLostOccupationTraits(lostOccupationTraits));
         List<ResourceLocation> after = effectiveTraits(player);
 
         TraitData data = data();
@@ -125,6 +208,22 @@ public final class TraitManager {
                 send(player, new TraitNotifyPayload(id, true));
             }
         }
+
+        // One-time commands: a new occupation's on_select, then on_gain of every gained trait
+        if (!previousOccupation.equals(occupation)) {
+            occupation.ifPresent(id -> {
+                Occupation newOccupation = data.occupation(id);
+                if (newOccupation != null) {
+                    TraitCommands.run(player, newOccupation.onSelect(), "occupation " + id);
+                }
+            });
+        }
+        for (ResourceLocation id : added) {
+            Trait trait = data.trait(id);
+            if (trait != null) {
+                TraitCommands.run(player, trait.onGain(), "trait " + id);
+            }
+        }
     }
 
     /**
@@ -140,27 +239,44 @@ public final class TraitManager {
 
         List<ResourceLocation> held = effectiveTraits(player);
         List<ResourceLocation> own = new ArrayList<>(playerData.traits());
+        List<ResourceLocation> lost = new ArrayList<>(playerData.lostOccupationTraits());
+        List<ResourceLocation> fromOccupation = heldOccupationTraits(playerData);
         boolean changed = false;
         for (TraitHolder holder : data.triggeredTraits()) {
             Trait trait = holder.value();
             boolean has = held.contains(holder.id());
             if (!has && trait.gainWhen().isPresent() && trait.gainWhen().get().test(player)) {
-                own.add(holder.id());
+                // Regaining a lost occupation trait gives it back as part of the occupation
+                if (!lost.remove(holder.id())) {
+                    own.add(holder.id());
+                }
                 for (TraitRef replaced : trait.replaces()) {
-                    own.removeIf(id -> {
-                        TraitHolder other = data.holder(id);
-                        return other != null && replaced.matches(other);
-                    });
+                    own.removeIf(id -> matches(data, replaced, id));
+                    for (ResourceLocation id : fromOccupation) {
+                        Trait other = data.trait(id);
+                        if (other != null && other.removableFromOccupation() && matches(data, replaced, id) && !lost.contains(id)) {
+                            lost.add(id);
+                        }
+                    }
                 }
                 changed = true;
-            } else if (has && own.contains(holder.id()) && trait.loseWhen().isPresent() && trait.loseWhen().get().test(player)) {
-                own.remove(holder.id());
-                changed = true;
+            } else if (has && trait.loseWhen().isPresent() && trait.loseWhen().get().test(player)) {
+                if (own.remove(holder.id())) {
+                    changed = true;
+                } else if (trait.removableFromOccupation() && fromOccupation.contains(holder.id()) && !lost.contains(holder.id())) {
+                    lost.add(holder.id());
+                    changed = true;
+                }
             }
         }
         if (changed) {
-            setState(player, own, playerData.occupation(), ChangeCause.TRIGGER);
+            setState(player, own, playerData.occupation(), lost, ChangeCause.TRIGGER);
         }
+    }
+
+    private static boolean matches(TraitData data, TraitRef ref, ResourceLocation id) {
+        TraitHolder holder = data.holder(id);
+        return holder != null && ref.matches(holder);
     }
 
     /** Every currently active effect of the given type across the player's traits, conditions included. */
@@ -251,6 +367,9 @@ public final class TraitManager {
         if (!playerData.initialized()) {
             playerData = playerData.withInitialized(true).withSelecting(FacetsConfig.OPEN_ON_FIRST_JOIN.get());
             set(player, playerData);
+            // A new player is a new character
+            snapshotStats(player);
+            playerData = get(player);
         }
         refresh(player);
         if (playerData.selecting()) {
@@ -267,7 +386,7 @@ public final class TraitManager {
         switch (FacetsConfig.ON_DEATH.get()) {
             case KEEP -> refresh(player);
             case RESET -> {
-                setState(player, List.of(), Optional.empty(), ChangeCause.RESET);
+                resetCharacter(player);
                 set(player, get(player).withSelecting(true));
             }
             case REPICK -> {

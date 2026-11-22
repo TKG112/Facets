@@ -50,15 +50,31 @@ public final class ProgressConditions {
         }
     }
 
+    /** Where a stat condition starts counting from. */
+    public enum Since {
+        /** Every value the statistic ever reached, across deaths and characters */
+        EVER,
+        /** Only what the current character did: since first join, or since the last reset (death with onDeath = RESET or /facets reset) */
+        CHARACTER;
+
+        /** "ever" or "character"; "selection" is accepted as another name for "character" */
+        public static final Codec<Since> CODEC = Codec.STRING.comapFlatMap(value -> switch (value) {
+            case "ever" -> DataResult.success(EVER);
+            case "character", "selection" -> DataResult.success(CHARACTER);
+            default -> DataResult.error(() -> "Unknown since \"" + value + "\", expected \"ever\" or \"character\"");
+        }, since -> since == EVER ? "ever" : "character");
+    }
+
     /**
-     * { "type": "facets:stat", "stat_type": "minecraft:custom", "stat": "minecraft:mob_kills", "at_least": 100 }
+     * { "type": "facets:stat", "stat_type": "minecraft:custom", "stat": "minecraft:mob_kills", "at_least": 100, "since": "character" }
      * Distances are in centimeters, times in ticks, like in the statistics screen's raw values.
      */
-    public record StatValue(ResourceLocation statType, ResourceLocation stat, int atLeast) implements EffectCondition {
+    public record StatValue(ResourceLocation statType, ResourceLocation stat, int atLeast, Since since) implements EffectCondition {
         public static final MapCodec<StatValue> CODEC = RecordCodecBuilder.<StatValue>mapCodec(i -> i.group(
                 ResourceLocation.CODEC.fieldOf("stat_type").forGetter(StatValue::statType),
                 ResourceLocation.CODEC.fieldOf("stat").forGetter(StatValue::stat),
-                Codec.INT.fieldOf("at_least").forGetter(StatValue::atLeast)
+                Codec.INT.fieldOf("at_least").forGetter(StatValue::atLeast),
+                Since.CODEC.optionalFieldOf("since", Since.EVER).forGetter(StatValue::since)
         ).apply(i, StatValue::new)).validate(StatValue::check);
 
         private static DataResult<StatValue> check(StatValue condition) {
@@ -91,20 +107,36 @@ public final class ProgressConditions {
             return CODEC;
         }
 
+        /** Identifies the statistic in the player's stat baseline. */
+        public String baselineKey() {
+            return statType + "|" + stat;
+        }
+
+        public int currentValue(ServerPlayer player) {
+            Stat<?> resolved = resolve();
+            return resolved == null ? 0 : player.getStats().getValue(resolved);
+        }
+
         @Override
         public boolean test(ServerPlayer player) {
-            Stat<?> resolved = resolve();
-            return resolved != null && player.getStats().getValue(resolved) >= atLeast;
+            if (resolve() == null) {
+                return false;
+            }
+            int value = currentValue(player);
+            if (since == Since.CHARACTER) {
+                value -= TraitManager.statBaseline(player, baselineKey(), value);
+            }
+            return value >= atLeast;
         }
 
         @Override
         public Component describe() {
             StatType<?> type = BuiltInRegistries.STAT_TYPE.get(statType);
             Component what = type == null ? Component.literal(stat.toString()) : valueName(type);
-            if (statType.equals(BuiltInRegistries.STAT_TYPE.getKey(net.minecraft.stats.Stats.CUSTOM))) {
-                return Component.translatable("facets.condition.stat.custom", what, atLeast);
-            }
-            return Component.translatable("facets.condition.stat", type.getDisplayName(), what, atLeast);
+            Component text = statType.equals(BuiltInRegistries.STAT_TYPE.getKey(net.minecraft.stats.Stats.CUSTOM))
+                    ? Component.translatable("facets.condition.stat.custom", what, atLeast)
+                    : Component.translatable("facets.condition.stat", type.getDisplayName(), what, atLeast);
+            return since == Since.CHARACTER ? Component.translatable("facets.condition.stat.character", text) : text;
         }
 
         private Component valueName(StatType<?> type) {

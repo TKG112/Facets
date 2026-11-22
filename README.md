@@ -61,6 +61,8 @@ Traits go in `data/<namespace>/facets/trait/<name>.json`:
 | `gain_when`      | none             | A [condition](#conditions); the player gains the trait during play once it matches   |
 | `lose_when`      | none             | A condition; the player loses the trait during play once it matches                  |
 | `replaces`       | `[]`             | Traits or trait tags removed when this trait is gained through `gain_when`           |
+| `removable_from_occupation` | `false` | When an occupation gives this trait for free, `lose_when`, `replaces` and `/facets remove` can still take it away |
+| `on_gain`        | `[]`             | Commands run once when the player gains the trait (see [Commands on gain and selection](#commands-on-gain-and-selection)) |
 
 ### Gaining and losing traits during play
 
@@ -78,7 +80,25 @@ off with `notifications.toasts`). These traits are usually `"selectable": false`
 }
 ```
 
-`lose_when` only takes away traits the player holds themselves, never the free traits of their occupation.
+`lose_when` and `replaces` only take away free occupation traits that are marked `"removable_from_occupation": true`;
+others stay for as long as the player has that occupation. A lost occupation trait comes back when the player
+switches to another occupation and back, or starts a new character.
+
+### Commands on gain and selection
+
+`on_gain` on a trait and `on_select` on an occupation run commands once, as the server (permission level 4) at the
+player's position, with `@s` as the player. Output stays out of chat; failed commands are logged.
+
+```json
+"on_select": ["give @s minecraft:iron_sword", "pmmo admin @s set combat level 2"]
+```
+
+- `on_select` runs when the player gets a different occupation: confirming the selection screen, `/facets
+  occupation`, or another mod. Re-picking the same occupation doesn't run it again.
+- `on_gain` runs whenever the trait is gained: picked on the screen, given by an occupation, `gain_when`, commands or
+  other mods. Joining, respawning and `/reload` never run either one.
+- After a reset (dying with `onDeath = RESET`, or `/facets reset`), the next selection is a new character, so both run
+  again.
 
 Trait tags go in `data/<namespace>/tags/facets/trait/<name>.json`, like any other tag.
 
@@ -137,6 +157,7 @@ They go in `data/<namespace>/facets/occupation/<name>.json`:
 | `order`       | `0`               | Occupations are listed from lowest to highest, then by name               |
 | `traits`      | `[]`              | Traits given for free; they show as "Free" in the build and can't be removed |
 | `blocked`     | `[]`              | Traits or trait tags that can't be picked with this occupation            |
+| `on_select`   | `[]`              | Commands run once when a player takes this occupation, see above          |
 
 Players can check their traits at any time on the "My Traits" screen: `J` by default, or the book button in the top
 left corner of the inventory screen. With JEI or EMI installed, their bookmark/favorites panel stays clear of that
@@ -178,6 +199,10 @@ button.
 
 `facets:experience` multiplies experience gained: `{ "type": "facets:experience", "multiplier": 1.25 }`
 
+`facets:effect_immunity` keeps mob effects from being applied, and clears them when the trait is gained. `effects` is an
+effect id, a list, or a mob effect tag (`#mypack:toxins`):
+`{ "type": "facets:effect_immunity", "effects": ["minecraft:poison", "minecraft:hunger"] }`
+
 `facets:conditional` runs other effects only while a condition matches (checked every half second):
 
 ```json
@@ -203,7 +228,7 @@ button.
 | `facets:any_of`    | `conditions`: list                       | Any of them matches                                   |
 | `facets:not`       | `condition`                              | It doesn't match                                      |
 | `facets:advancement` | `advancement`                          | The player has earned the advancement                 |
-| `facets:stat`      | `stat_type`, `stat`, `at_least`          | A statistic reached the value, e.g. `minecraft:custom` / `minecraft:mob_kills`, or `minecraft:killed` / `minecraft:zombie`. Distances are in cm, times in ticks |
+| `facets:stat`      | `stat_type`, `stat`, `at_least`, `since` | A statistic reached the value, e.g. `minecraft:custom` / `minecraft:mob_kills`, or `minecraft:killed` / `minecraft:zombie`. Distances are in cm, times in ticks. `since`: `ever` (default, counts across deaths) or `character` (counts only since the current character started: first join, or the last reset) |
 | `facets:has_trait` | `trait`: a trait or `#tag`               | The player holds the trait                            |
 
 Tooltips describe effects and conditions automatically. Tag and dimension names come from lang keys you can add in a

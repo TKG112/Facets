@@ -16,6 +16,7 @@ public final class FacetsEffectTypes {
         EFFECT_TYPES.register("hunger", () -> HungerEffect.CODEC);
         EFFECT_TYPES.register("experience", () -> ExperienceEffect.CODEC);
         EFFECT_TYPES.register("conditional", () -> ConditionalEffect.CODEC);
+        EFFECT_TYPES.register("effect_immunity", () -> EffectImmunity.CODEC);
     }
 
     private FacetsEffectTypes() {
